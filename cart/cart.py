@@ -15,41 +15,40 @@ class Cart(object):
             cart = self.session[settings.CART_SESSION_ID] = {}
         self.cart = cart
 
-    def add(self, product, quantity=1, action=None):
+    def add(self, product, quantity=None, action=None):
         """
         Add a product to the cart or update its quantity.
         """
         id = product.id
-        newItem = True
+        quantity = quantity if quantity else 1
         if str(product.id) not in self.cart.keys():
 
             self.cart[product.id] = {
                 'userid': self.request.user.id,
                 'product_id': id,
                 'name': product.name,
-                'quantity': 1,
+                'quantity': quantity,
                 'price': str(product.price),
-                'image': product.image.url
+                'image': product.images.all()[0].image.url
             }
         else:
-            newItem = True
+            new_item = True
 
             for key, value in self.cart.items():
                 if key == str(product.id):
-
-                    value['quantity'] = value['quantity'] + 1
-                    newItem = False
+                    value['quantity'] = value['quantity']+quantity
+                    new_item = False
                     self.save()
                     break
-            if newItem == True:
+            if new_item:
 
                 self.cart[product.id] = {
                     'userid': self.request,
                     'product_id': product.id,
                     'name': product.name,
-                    'quantity': 1,
+                    'quantity': quantity,
                     'price': str(product.price),
-                    'image': product.image.url
+                    'image': product.images[0].image.url
                 }
 
         self.save()
@@ -74,8 +73,8 @@ class Cart(object):
             if key == str(product.id):
 
                 value['quantity'] = value['quantity'] - 1
-                if(value['quantity'] < 1):
-                    return redirect('cart:cart_detail')
+                if value['quantity'] < 1:
+                    return redirect('carts:detail')
                 self.save()
                 break
             else:
