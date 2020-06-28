@@ -12,6 +12,7 @@ def cart_total_amount(request):
         return {'cart_total_amount': 0}
 
 
+# cart item count
 def cart_total_count(request):
     if request.session.get('cart'):
         return {'cart_total_count': len(request.session.get('cart').items())}
